@@ -55,22 +55,20 @@ defmodule ScannerTest do
 
   test "adding a url sends it to the request engine" do
     test_url="http://foo.com"
-    Scanner.add_page(test_url)
-    assert_received {:fetched, ^test_url}, "first message not received"
+    Scanner.add_page(test_url) 
+    assert_received {:fetched, ^test_url}, "message not received"
   end
 
   test "adding a url a second time does not send it to the request engine a second time" do
     test_url="http://foo.com"
-    Scanner.add_page(test_url)
-    Scanner.add_page(test_url)
+    Scanner.add_page(test_url) 
+    Scanner.add_page(test_url) 
     assert_received {:fetched, ^test_url}, "first message not received"
     refute_received {:fetched, ^test_url}, "Second message received when it shouldn't be"
   end
 
   test "adding a scraper" do
-    #how to have the scraper call back to test here?
     assert :ok=Scanner.add_scraper(TestScraper)
-
   end
 
 end

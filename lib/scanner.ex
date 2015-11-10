@@ -21,21 +21,29 @@ defmodule Scanner do
 
   def init(args \\ %{}) do
     {:ok,
-     args |> Map.put(:table, :ets.new(:urls, [:set, :protected]))
+     args |> Map.put(:table, %{})
     }
   end
 
   def handle_call({:add_scraper,  scraper},_, state) do
-    {:ok,
-     state |> Map.put(scrapers: Enum.concat(state.scrapers, scraper))
-    }
+    {:reply,
+     :ok,
+     state |> Map.update(:scrapers, [], fn s ->  (s  ++ [scraper]) end)
+    } 
   end
 
+  # def handle_call({:add_page, url},  _, state) when is_nil(state[:table][url]) do 
+    
+  #   state.requester.fetch(url)
+  #   new_state = Map.put(state, :table, Map.update(state.table, url, true, fn _ -> true end) )
+  #   {:reply, :ok, new_state}
+  # end
+
   def handle_call({:add_page, url},  _, state) do
-    elm = :ets.lookup(state.table, url)
-    if Enum.empty?(elm) do
+    elm = state.table[url]
+    if elm == nil do
       state.requester.fetch(url)
-      :ets.insert(state.table, {url, true})
+      state=Map.put(state, :table, Map.update(state.table, url, true, fn _ -> true end) )
     end
 
     {:reply, :ok, state}
